@@ -14,8 +14,7 @@ else:
 
 
 ########CHANGE THIS UNTIL YOU FIND THE RIGHT CAMERA##############
-#CameraNum = 0
-CameraNum = 1
+CameraNum = 0
 #######ADD OR REMOVE REQUIRED LABEL CLASSES###################
 Labels = ["fairway", "rough", "mixed", "sidewalk", "dirt"]
 
