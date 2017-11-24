@@ -1140,6 +1140,37 @@ def main(_):
       f.write('\n'.join(image_lists.keys()) + '\n')
 
 
+def run(img_dir):
+
+  global FLAGS
+  FLAGS = argparse.Namespace()
+  FLAGS.architecture='mobilenet_0.50_224'
+  FLAGS.bottleneck_dir='/tmp/bottleneck'
+  FLAGS.eval_step_interval=10
+  FLAGS.final_tensor_name='final_result'
+  FLAGS.flip_left_right=False
+  FLAGS.how_many_training_steps=500
+  FLAGS.image_dir=img_dir
+  FLAGS.intermediate_output_graphs_dir='/tmp/intermediate_graph/'
+  FLAGS.intermediate_store_frequency=0
+  FLAGS.learning_rate=0.01
+  FLAGS.model_dir='./tf_files/models'
+  FLAGS.output_graph='tf_files/retrained_graph.pb'
+  FLAGS.output_labels='tf_files/retrained_labels.txt'
+  FLAGS.print_misclassified_test_images=False
+  FLAGS.random_brightness=0
+  FLAGS.random_crop=0
+  FLAGS.random_scale=0
+  FLAGS.summaries_dir='/tmp/retrain_logs'
+  FLAGS.test_batch_size=-1
+  FLAGS.testing_percentage=10
+  FLAGS.train_batch_size=100
+  FLAGS.validation_batch_size=100
+  FLAGS.validation_percentage=10
+  unparsed = []
+
+  tf.app.run(main=main, argv=[sys.argv[0]] + unparsed)
+
 if __name__ == '__main__':
   parser = argparse.ArgumentParser()
   parser.add_argument(
@@ -1322,5 +1353,6 @@ if __name__ == '__main__':
       takes 128x128 images. See https://research.googleblog.com/2017/06/mobilenets-open-source-models-for.html
       for more information on Mobilenet.\
       """)
-  FLAGS, unparsed = parser.parse_known_args()
-  tf.app.run(main=main, argv=[sys.argv[0]] + unparsed)
+
+  #FLAGS, unparsed = parser.parse_known_args()
+

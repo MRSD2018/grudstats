@@ -1,18 +1,21 @@
 from threading import Thread,Event
 from camera import Camera
 import os
+import retrain
+import label_image
+
+
 
 #####Config
 ##Todo: load config json
 output_dir = "./dataz/"
 capture_rate = 5 #Hz donut?
+classify_rate = 1 #Hz donut?
 
 
 class Classifier():
   def __init__(self):
-
     self.commands = {'c':self.classify,'s':self.stop}
-
     self.img_dir = output_dir
     self.labels = []
     n_labels = int(raw_input('How many grudslabels would you like?'))
@@ -32,21 +35,29 @@ class Classifier():
 
   def capture(self,img_dir):
     self.stop()
+    self.camera.set_capture_rate(capture_rate)
     self.camera.set_dir(img_dir)
     self.camera.enable()
 
   def classify(self):
     self.stop()
     self.batch_train()
+
+    self.classify_dir = os.path.join(self.img_dir,'unclassified')
+    if not os.path.exists(self.classify_dir):
+      os.mkdir(self.classify_dir)
+
+    self.camera.set_dir(self.classify_dir)
+    self.camera.set_capture_rate(classify_rate)
+    self.camera.enable(classify=True)
     print 'classifying'
 
   def batch_train(self):
+    retrain.run(self.img_dir)
     print 'batch train: todo'
 
   def stop(self):
-    print 'stopping'
     self.camera.disable()
-    #todo:Disable classifier
 
   def run(self):
     while 1:
@@ -56,5 +67,9 @@ class Classifier():
       except KeyError:
         print '{} not in commands'.format(command)
   
+
 classifier = Classifier()
 classifier.run()
+
+
+

@@ -1,8 +1,7 @@
 import cv2
 import os
 import re
-#import time 
-#import sys
+import label_image
 from threading import Thread,Event,Timer
 
 ########CHANGE THIS UNTIL YOU FIND THE RIGHT CAMERA##############
@@ -11,9 +10,14 @@ CameraNum = 0
 class Camera():
   def __init__(self,img_dir,capture_rate=5):
     self.enabled = False
+    self.classify_enabled = False
     global CameraNum
     self.cap = cv2.VideoCapture(CameraNum)
     self.img_dir = img_dir
+    self.delay = 1 / float(capture_rate)
+    self.set_capture_rate(capture_rate)
+
+  def set_capture_rate(self,capture_rate):
     self.delay = 1 / float(capture_rate)
 
   def set_dir(self,img_dir):
@@ -26,6 +30,9 @@ class Camera():
       cv2.waitKey(1)
       filename = "{}/img_{}.jpg".format(self.img_dir,self.get_img_count()+1)
       cv2.imwrite(filename, frame)
+      if self.classify_enabled:
+        label_image.label(filename)
+    #thread timer, capture just keeps calling itself in perpetuity
     Timer(self.delay,self.capture).start()
 
   def get_img_count(self):
@@ -37,6 +44,12 @@ class Camera():
         pass
     return len(files)
 
-  def enable(self): self.enabled = True
-  def disable(self): self.enabled = False
+  def enable(self,classify=False):
+    self.enabled = True
+    self.classify_enabled = classify
+  def disable(self):
+    self.enabled = False
+    self.classify_enabled = False
+
+
 
