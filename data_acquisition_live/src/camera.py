@@ -8,32 +8,13 @@ from threading import Thread,Event,Timer
 ########CHANGE THIS UNTIL YOU FIND THE RIGHT CAMERA##############
 CameraNum = 0
 
-#class Camera(Thread):
 class Camera():
-  #def __init__(self,img_dir,event,capture_rate=5):
   def __init__(self,img_dir,capture_rate=5):
-    #Thread.__init__(self)
-    #Timer.__init__(self,)
-    #self.stopped = event
     self.enabled = False
     global CameraNum
     self.cap = cv2.VideoCapture(CameraNum)
     self.img_dir = img_dir
     self.delay = 1 / float(capture_rate)
-
-  def run(self):
-    #while not self.stopped.wait(self.delay) and self.enabled:
-    if self.enabled:
-      print 'oh hey cameraing'
-      self.capture()
-      self.start
-    Timer(self.delay,self.run).start()
-
-  def enable(self):
-    self.enabled = True
-
-  def disable(self):
-    self.enabled = False
 
   def set_dir(self,img_dir):
     self.img_dir = img_dir
@@ -56,6 +37,6 @@ class Camera():
         pass
     return len(files)
 
-if __name__ == "__main__":
-  camera = Camera('./dataz',Event())
-  print camera.get_img_count()
+  def enable(self): self.enabled = True
+  def disable(self): self.enabled = False
+

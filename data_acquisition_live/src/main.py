@@ -6,7 +6,6 @@ import os
 ##Todo: load config json
 output_dir = "./dataz/"
 capture_rate = 5 #Hz donut?
-##########
 
 
 class Classifier():
@@ -25,32 +24,28 @@ class Classifier():
       if not os.path.exists(label_dir):
         os.mkdir(label_dir)
 
-    #self.camera_disable = Event()
-    #self.camera_disable.set()
-    #self.camera = Camera(output_dir,self.camera_disable,capture_rate=capture_rate)
     self.camera = Camera(output_dir,capture_rate=capture_rate)
     self.camera.capture() 
-    #self.camera.start()
 
   def get_dir(self,img_n):
     return os.path.join(self.img_dir,self.labels[img_n])
 
   def capture(self,img_dir):
+    self.stop()
     self.camera.set_dir(img_dir)
     self.camera.enable()
-    #self.camera_disable.clear()
-    #self.camera.start()
 
   def classify(self):
-    print 'classifying:todo'
+    self.stop()
+    self.batch_train()
+    print 'classifying'
 
   def batch_train(self):
     print 'batch train: todo'
 
   def stop(self):
     print 'stopping'
-    #self.camera_disable.set()
-    self.camera_disable.enable()
+    self.camera.disable()
     #todo:Disable classifier
 
   def run(self):
@@ -63,4 +58,3 @@ class Classifier():
   
 classifier = Classifier()
 classifier.run()
-exit()
