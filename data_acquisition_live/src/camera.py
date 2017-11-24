@@ -1,17 +1,9 @@
-import Tkinter, Tkconstants, tkFileDialog
 import cv2
-from PIL import Image, ImageTk
 import os
 import re
 import time 
 import sys
 from threading import Thread,Event
-
-
-if sys.platform.startswith('linux'):
-    from Tkinter import Tk, Label, Button, Entry, IntVar, Frame, Entry, StringVar, SUNKEN, RAISED, Scale, HORIZONTAL
-else:
-    from tkinter import Tk, Label, Button, Entry, IntVar, Frame, Entry, StringVar, SUNKEN, RAISED, Scale, HORIZONTAL
 
 
 
@@ -21,77 +13,56 @@ CameraNum = 0
 Labels = ["fairway", "rough", "mixed", "sidewalk", "dirt"]
 
 
-class DataCollector(Thread):
-  def __init__(self,event):
+class Camera(Thread):
+  def __init__(self,img_dir,event):
     Thread.__init__(self)
     self.stopped = event
     global Labels
     self.grassLabels = Labels
-    self.directory_name = "./dataz"
-    self.lastcaptime = 0
+    #self.directory_name = "./dataz"
     self.capRate = 10
     global CameraNum
     self.cap = cv2.VideoCapture(CameraNum)
+    self.img_dir = img_dir
 
   def run(self):
     while not self.stopped.wait(1):
+      print self.get_img_count()
+      self.capture()
       print("my thread")
-      # call a function
-
-  def set_rate(self, val):
-    self.capRate = float(val)
 
   def capture(self):
     _, frame = self.cap.read()
     cv2.imshow("Robostats Data Collector", frame)
     cv2.waitKey(1)
     #if os.path.exists(self.directory_name.get()):
-    if os.path.exists(self.directory_name):
-      millis = int(round(time.time() * 1000))
+    #if os.path.exists(self.directory_name):
+    #labelDir = self.directory_name + "/" + "mylabelz" #self.grassLabel.get()
+    #if not os.path.exists(labelDir):
+    #  os.makedirs(labelDir)
 
-      if millis > self.lastcaptime + (1000/self.capRate):
-        labelDir = self.directory_name + "/" + "mylabelz" #self.grassLabel.get()
-        if not os.path.exists(labelDir):
-          os.makedirs(labelDir)
+    #check existing files
+    #listOfFiles = [f for f in os.listdir(labelDir)]
+    #print listOfFiles
+    #maxNum = 0
+    #if len(listOfFiles) > 0:
+    #  fileNums = [int(re.search(r'\d+', n).group()) for n in listOfFiles]
+    #  maxNum = max(fileNums)
 
-        #check existing files
-        listOfFiles = [f for f in os.listdir(labelDir)]
-        print listOfFiles
-        maxNum = 0
-        if len(listOfFiles) > 0:
-          fileNums = [int(re.search(r'\d+', n).group()) for n in listOfFiles]
-          maxNum = max(fileNums)
-  
-        filename = labelDir + "/" + "mylabelz" + str(maxNum + 1) + ".png"
-        cv2.imwrite(filename, frame)
-
-        self.lastcaptime = millis
-        self.update_counters()
-
-     
-  def update_counters(self):
-    for i, label in enumerate(self.grassLabels):
-      labelDir = self.directory_name + "/" + label
-      if not os.path.exists(labelDir):
-        os.makedirs(labelDir)
-
-      #check existing files
-      listOfFiles = [f for f in os.listdir(labelDir)]
-      maxNum = 0
-      if len(listOfFiles) > 0:
-        fileNums = [int(re.search(r'\d+', n).group()) for n in listOfFiles]
-        maxNum = max(fileNums)
-
-#my_gui = DataCollector()
-#while 1: 
-#  my_gui.show_frame()
-#  time.sleep(1)
+    #filename = labelDir + "/" + "mylabelz" + str(maxNum + 1) + ".png"
+    filename = "{}/img_{}.jpg".format(self.img_dir,self.get_img_count()+1)
+    cv2.imwrite(filename, frame)
 
 
-"""
-stopFlag = Event()
-thread = MyThread(stopFlag)
-thread.start()
-# this will stop the timer
-stopFlag.set()
-"""
+  def get_img_count(self):
+    files = []
+    for f in [f for f in os.listdir(self.img_dir) if os.path.isfile(os.path.join(self.img_dir,f))]:
+      try:
+        files.append(int(re.search(r'\d', f).group()))
+      except AttributeError:
+        pass
+    return len(files)
+
+if __name__ == "__main__":
+  camera = Camera('./dataz',Event())
+  print camera.get_img_count()
