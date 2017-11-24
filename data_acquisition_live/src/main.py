@@ -25,17 +25,21 @@ class Classifier():
       if not os.path.exists(label_dir):
         os.mkdir(label_dir)
 
-    self.camera_disable = Event()
+    #self.camera_disable = Event()
     #self.camera_disable.set()
-    self.camera = Camera(output_dir,self.camera_disable,capture_rate=capture_rate)
-    self.camera.start()
+    #self.camera = Camera(output_dir,self.camera_disable,capture_rate=capture_rate)
+    self.camera = Camera(output_dir,capture_rate=capture_rate)
+    self.camera.capture() 
+    #self.camera.start()
 
   def get_dir(self,img_n):
     return os.path.join(self.img_dir,self.labels[img_n])
 
   def capture(self,img_dir):
     self.camera.set_dir(img_dir)
-    self.camera_disable.clear()
+    self.camera.enable()
+    #self.camera_disable.clear()
+    #self.camera.start()
 
   def classify(self):
     print 'classifying:todo'
@@ -45,7 +49,8 @@ class Classifier():
 
   def stop(self):
     print 'stopping'
-    self.camera_disable.set()
+    #self.camera_disable.set()
+    self.camera_disable.enable()
     #todo:Disable classifier
 
   def run(self):
