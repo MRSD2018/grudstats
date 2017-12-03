@@ -3,14 +3,15 @@ from camera import Camera
 import os
 import retrain
 import label_image
+import numpy as np
 
 
 
 #####Config
 ##Todo: load config json
-output_dir = "./dataz/"
+output_dir = "./data/"
 capture_rate = 5 #Hz donut?
-classify_rate = 1 #Hz donut?
+classify_rate = 2 #Hz donut?
 
 
 class Classifier():
@@ -28,7 +29,7 @@ class Classifier():
         os.mkdir(label_dir)
 
     self.camera = Camera(output_dir,capture_rate=capture_rate)
-    self.camera.capture() 
+    #self.camera.capture() 
 
   def get_dir(self,img_n):
     return os.path.join(self.img_dir,self.labels[img_n])
@@ -38,6 +39,7 @@ class Classifier():
     self.camera.set_capture_rate(capture_rate)
     self.camera.set_dir(img_dir)
     self.camera.enable()
+    self.camera.capture() 
 
   def classify(self):
     self.stop()
@@ -52,7 +54,24 @@ class Classifier():
     self.camera.enable(classify=True)
     print 'classifying'
 
+  def siphon_test_data(self):
+    """before training, capture labeled images for testing later"""
+    testing_dir = "./testing"
+    if not os.path.exists(testing_dir):
+      os.mkdir(testing_dir)
+    for label in self.labels:
+      label_dir = os.path.join(self.img_dir,label)
+      testing_label_dir = os.path.join(testing_dir,label)
+      if not os.path.exists(testing_label_dir):
+        os.mkdir(testing_label_dir)
+      images = os.listdir(label_dir)
+      np.random.shuffle(images)
+      images = images[:50]
+      for img in images:
+        os.rename(os.path.join(label_dir,img), os.path.join(testing_label_dir,img))
+      
   def batch_train(self):
+    self.siphon_test_data()
     retrain.run(self.img_dir)
     print 'batch train: todo'
 
