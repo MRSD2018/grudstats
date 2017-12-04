@@ -4,6 +4,9 @@ import re
 import label_image
 from time import time
 from threading import Thread,Event,Timer
+from subprocess import Popen, PIPE
+import numpy as np
+
 
 ########CHANGE THIS UNTIL YOU FIND THE RIGHT CAMERA##############
 CameraNum = 0
@@ -17,6 +20,12 @@ class Camera():
     self.img_dir = img_dir
     self.delay = 1 / float(capture_rate)
     self.set_capture_rate(capture_rate)
+    #I got my class. pipe
+    self.PIPE_PATH = "/tmp/class_pipe"
+    if not os.path.exists(self.PIPE_PATH):
+        os.mkfifo(self.PIPE_PATH)
+    #Will open a terminal to watch this pipe manually. uncomment to automagically open terminal
+    #Popen(['xterm', '-e', 'tail -f %s' % self.PIPE_PATH])
 
   def set_capture_rate(self,capture_rate):
     self.delay = 1 / float(capture_rate)
@@ -35,7 +44,10 @@ class Camera():
       cv2.imwrite(filename, frame)
       #cv2.destroyAllWindows()
       if self.classify_enabled:
-        label_image.label(filename)
+        labels,results = label_image.label(filename)
+        index_max = np.argmax(results)
+        with open(self.PIPE_PATH, "w") as p:
+          p.write("{} : {} \n".format(labels[index_max],results[index_max]))
       delay = self.delay - max(0,(time() - start_time))
     #thread timer, capture just keeps calling itself in perpetuity
     Timer(delay,self.capture).start()
