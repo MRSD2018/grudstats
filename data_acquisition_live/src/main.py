@@ -29,7 +29,7 @@ class Classifier():
         os.mkdir(label_dir)
 
     self.camera = Camera(output_dir,capture_rate=capture_rate)
-    #self.camera.capture() 
+    self.camera.capture() 
 
   def get_dir(self,img_n):
     return os.path.join(self.img_dir,self.labels[img_n])
@@ -39,11 +39,12 @@ class Classifier():
     self.camera.set_capture_rate(capture_rate)
     self.camera.set_dir(img_dir)
     self.camera.enable()
-    self.camera.capture() 
+    #self.camera.capture() 
 
   def classify(self):
-    self.stop()
+    #self.stop()
     self.batch_train()
+    exit()
 
     self.classify_dir = os.path.join(self.img_dir,'unclassified')
     if not os.path.exists(self.classify_dir):
@@ -52,7 +53,6 @@ class Classifier():
     self.camera.set_dir(self.classify_dir)
     self.camera.set_capture_rate(classify_rate)
     self.camera.enable(classify=True)
-    print 'classifying'
 
   def siphon_test_data(self):
     """before training, capture labeled images for testing later"""
@@ -66,14 +66,14 @@ class Classifier():
         os.mkdir(testing_label_dir)
       images = os.listdir(label_dir)
       np.random.shuffle(images)
-      images = images[:50]
+      #images = images[:50]
+      images = images[:1]
       for img in images:
         os.rename(os.path.join(label_dir,img), os.path.join(testing_label_dir,img))
       
   def batch_train(self):
-    self.siphon_test_data()
+    #self.siphon_test_data()
     retrain.run(self.img_dir)
-    print 'batch train: todo'
 
   def stop(self):
     self.camera.disable()
@@ -89,6 +89,4 @@ class Classifier():
 
 classifier = Classifier()
 classifier.run()
-
-
-
+#classifier.batch_train()

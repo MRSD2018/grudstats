@@ -6,12 +6,12 @@ from time import time
 from threading import Thread,Event,Timer
 
 ########CHANGE THIS UNTIL YOU FIND THE RIGHT CAMERA##############
-CameraNum = 1
+CameraNum = 0
 
 class Camera():
   def __init__(self,img_dir,capture_rate=5):
-    self.enabled = True
-    self.classify_enabled = True
+    self.enabled = False
+    self.classify_enabled = False
     global CameraNum
     self.cap = cv2.VideoCapture(CameraNum)
     self.img_dir = img_dir
@@ -24,10 +24,11 @@ class Camera():
   def set_dir(self,img_dir):
     self.img_dir = img_dir
 
-  def capture(self):
+  def capture_thread(self):
     last_capture = time()
-    while self.enabled:
-      if time() > last_capture + self.delay:
+    #while self.enabled:
+    while 1:
+      if time() > last_capture + self.delay and self.enabled:
         _, frame = self.cap.read()
         cv2.imshow("Robostats Data Collector", frame)
         cv2.waitKey(1)
@@ -38,6 +39,11 @@ class Camera():
         last_capture = time()
     #thread timer, capture just keeps calling itself in perpetuity
     #Timer(self.delay,self.capture).start()
+
+  def capture(self):
+    self.capture_thread = Thread(target=self.capture_thread)
+    self.capture_thread.daemon = True
+    self.capture_thread.start() 
 
   def get_img_count(self):
     files = []
