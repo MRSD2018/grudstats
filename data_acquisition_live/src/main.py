@@ -39,7 +39,6 @@ class Classifier():
     self.camera.set_capture_rate(capture_rate)
     self.camera.set_dir(img_dir)
     self.camera.enable()
-    #self.camera.capture() 
 
   def classify(self):
     self.stop()
@@ -64,13 +63,12 @@ class Classifier():
         os.mkdir(testing_label_dir)
       images = os.listdir(label_dir)
       np.random.shuffle(images)
-      #images = images[:50]
-      images = images[:1]
+      images = images[:50]
       for img in images:
         os.rename(os.path.join(label_dir,img), os.path.join(testing_label_dir,img))
       
   def batch_train(self):
-    #self.siphon_test_data()
+    self.siphon_test_data()
     retrain.run(self.img_dir)
 
   def stop(self):
@@ -87,4 +85,3 @@ class Classifier():
 
 classifier = Classifier()
 classifier.run()
-#classifier.batch_train()
