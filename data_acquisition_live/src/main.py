@@ -10,8 +10,8 @@ import numpy as np
 #####Config
 ##Todo: load config json
 output_dir = "./data/"
-capture_rate = 5 #Hz donut?
-classify_rate = 2 #Hz donut?
+capture_rate = 8 #Hz donut?
+classify_rate = 8 #Hz donut?
 
 
 class Classifier():
@@ -42,10 +42,8 @@ class Classifier():
     #self.camera.capture() 
 
   def classify(self):
-    #self.stop()
+    self.stop()
     self.batch_train()
-    exit()
-
     self.classify_dir = os.path.join(self.img_dir,'unclassified')
     if not os.path.exists(self.classify_dir):
       os.mkdir(self.classify_dir)

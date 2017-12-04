@@ -17,6 +17,7 @@ class Camera():
     self.img_dir = img_dir
     self.delay = 1 / float(capture_rate)
     self.set_capture_rate(capture_rate)
+    self.last_capture = time()
 
   def set_capture_rate(self,capture_rate):
     self.delay = 1 / float(capture_rate)
@@ -24,26 +25,31 @@ class Camera():
   def set_dir(self,img_dir):
     self.img_dir = img_dir
 
-  def capture_thread(self):
-    last_capture = time()
-    #while self.enabled:
-    while 1:
-      if time() > last_capture + self.delay and self.enabled:
-        _, frame = self.cap.read()
-        cv2.imshow("Robostats Data Collector", frame)
-        cv2.waitKey(1)
-        filename = "{}/img_{}.jpg".format(self.img_dir,self.get_img_count()+1)
-        cv2.imwrite(filename, frame)
-        if self.classify_enabled:
-          label_image.label(filename)
-        last_capture = time()
-    #thread timer, capture just keeps calling itself in perpetuity
-    #Timer(self.delay,self.capture).start()
-
+  #def capture_thread(self):
   def capture(self):
-    self.capture_thread = Thread(target=self.capture_thread)
-    self.capture_thread.daemon = True
-    self.capture_thread.start() 
+    #while self.enabled:
+    #while 1:
+    #if time() > last_capture + self.delay and self.enabled:
+    self.last_capture = time()
+    delay = self.delay
+    if self.enabled:
+      _, frame = self.cap.read()
+      cv2.imshow("Robostats Data Collector", frame)
+      cv2.waitKey(1)
+      filename = "{}/img_{}.jpg".format(self.img_dir,self.get_img_count()+1)
+      cv2.imwrite(filename, frame)
+      #cv2.destroyAllWindows()
+      if self.classify_enabled:
+        label_image.label(filename)
+      #self.last_capture = time()
+      delay = self.delay - max(0,(time() - self.last_capture))
+    #thread timer, capture just keeps calling itself in perpetuity
+    Timer(delay,self.capture).start()
+
+  #def capture(self):
+  #  #self.capture_thread = Thread(target=self.capture_thread)
+  #  #self.capture_thread.daemon = True
+  #  #self.capture_thread.start() 
 
   def get_img_count(self):
     files = []
